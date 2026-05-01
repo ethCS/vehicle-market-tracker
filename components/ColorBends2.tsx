@@ -252,9 +252,10 @@ export default function ColorBends({
     };
     rafRef.current = requestAnimationFrame(loop);
 
+    let resizeTimer: NodeJS.Timeout;
+
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      clearInterval(speedInterval);
       clearTimeout(resizeTimer);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
@@ -348,9 +349,9 @@ export default function ColorBends({
       pointerTargetRef.current.set(x, y);
     };
 
-    container.addEventListener("pointermove", handlePointerMove);
+    (container as HTMLDivElement).addEventListener("pointermove", handlePointerMove);
     return () => {
-      container.removeEventListener("pointermove", handlePointerMove);
+      (container as HTMLDivElement).removeEventListener("pointermove", handlePointerMove);
     };
   }, []);
 
