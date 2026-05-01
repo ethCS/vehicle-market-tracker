@@ -79,7 +79,7 @@ const DotField = memo(({
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
     let resizeTimer: NodeJS.Timeout;
 
     function resize() {
@@ -103,8 +103,8 @@ const DotField = memo(({
       sizeRef.current = {
         w,
         h,
-        offsetX: rect.left + window.scrollX,
-        offsetY: rect.top + window.scrollY,
+        offsetX: rect.left + (typeof window !== "undefined" ? window.scrollX : 0),
+        offsetY: rect.top + (typeof window !== "undefined" ? window.scrollY : 0),
       };
 
       buildDots(w, h);
