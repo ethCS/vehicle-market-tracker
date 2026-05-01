@@ -254,7 +254,6 @@ export default function ColorBends({
 
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      clearInterval(speedInterval);
       clearTimeout(resizeTimer);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
