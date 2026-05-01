@@ -80,7 +80,7 @@ const DotField = memo(({
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
-    let resizeTimer: NodeJS.Timeout;
+    let resizeTimer: NodeJS.Timeout | undefined;
 
     function resize() {
       clearTimeout(resizeTimer);
@@ -88,6 +88,8 @@ const DotField = memo(({
     }
 
     function doResize() {
+      if (!canvas) return;
+      if (!ctx) return;
       const parentElement = canvas.parentElement;
       if (!parentElement) return;
       const rect = parentElement.getBoundingClientRect();
@@ -173,19 +175,19 @@ const DotField = memo(({
         glowRef.current.style.opacity = String(glowOpacity.current);
       }
 
-      ctx.clearRect(0, 0, w, h);
+      ctx!.clearRect(0, 0, w, h);
 
-      const grad = ctx.createLinearGradient(0, 0, w, h);
+      const grad = ctx!.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, p.gradientFrom ?? "rgba(168, 85, 247, 0.35)");
       grad.addColorStop(1, p.gradientTo ?? "rgba(180, 151, 207, 0.25)");
-      ctx.fillStyle = grad;
+      ctx!.fillStyle = grad;
 
       const cr = p.cursorRadius ?? 500;
       const crSq = cr * cr;
       const rad = (p.dotRadius ?? 1.5) / 2;
       const isBulge = p.bulgeOnly ?? true;
 
-      ctx.beginPath();
+      ctx!.beginPath();
 
       for (let i = 0; i < len; i++) {
         const d = dots[i];
@@ -231,19 +233,19 @@ const DotField = memo(({
         if (p.sparkle) {
           const hash = ((i * 2654435761) ^ (frameCount >> 3)) >>> 0;
           if ((hash % 100) < 3) {
-            ctx.moveTo(drawX + rad * 1.8, drawY);
-            ctx.arc(drawX, drawY, rad * 1.8, 0, TWO_PI);
+            ctx!.moveTo(drawX + rad * 1.8, drawY);
+            ctx!.arc(drawX, drawY, rad * 1.8, 0, TWO_PI);
           } else {
-            ctx.moveTo(drawX + rad, drawY);
-            ctx.arc(drawX, drawY, rad, 0, TWO_PI);
+            ctx!.moveTo(drawX + rad, drawY);
+            ctx!.arc(drawX, drawY, rad, 0, TWO_PI);
           }
         } else {
-          ctx.moveTo(drawX + rad, drawY);
-          ctx.arc(drawX, drawY, rad, 0, TWO_PI);
+          ctx!.moveTo(drawX + rad, drawY);
+          ctx!.arc(drawX, drawY, rad, 0, TWO_PI);
         }
       }
 
-      ctx.fill();
+      ctx!.fill();
 
       rafRef.current = requestAnimationFrame(tick);
     }
@@ -263,7 +265,7 @@ const DotField = memo(({
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       clearInterval(speedInterval);
-      clearTimeout(resizeTimer);
+      if (resizeTimer !== undefined) clearTimeout(resizeTimer);
       if (typeof window !== "undefined") {
         (window as Window).removeEventListener("resize", resize);
         (window as Window).removeEventListener("mousemove", onMouseMove);

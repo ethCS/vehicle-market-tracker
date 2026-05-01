@@ -252,11 +252,11 @@ export default function ColorBends({
     };
     rafRef.current = requestAnimationFrame(loop);
 
-    let resizeTimer: NodeJS.Timeout;
+    let resizeTimer: NodeJS.Timeout | undefined;
 
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      clearTimeout(resizeTimer);
+      if (resizeTimer !== undefined) clearTimeout(resizeTimer);
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
       } else if (typeof window !== "undefined") {
