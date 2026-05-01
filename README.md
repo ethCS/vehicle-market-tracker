@@ -80,24 +80,19 @@ The repository includes an automated Cloud Run deploy workflow at `.github/workf
 1. In GitHub, open **Settings > Secrets and variables > Actions**.
 2. Add these repository secrets:
 	- `GCP_SA_KEY` (full JSON for a service account key)
-	- `FB_WEB_API_KEY`
-	- `FB_WEB_AUTH_DOMAIN`
-	- `FB_WEB_PROJECT_ID`
-	- `FB_WEB_STORAGE_BUCKET`
-	- `FB_WEB_MESSAGING_SENDER_ID`
-	- `FB_WEB_APP_ID`
 	- `NEXT_PUBLIC_FB_API_KEY`
 	- `NEXT_PUBLIC_FB_AUTH_DOMAIN`
 	- `NEXT_PUBLIC_FB_PROJECT_ID`
 	- `NEXT_PUBLIC_FB_STORAGE_BUCKET`
 	- `NEXT_PUBLIC_FB_MESSAGING_SENDER_ID`
 	- `NEXT_PUBLIC_FB_APP_ID`
-3. Ensure the service account has:
+3. The workflow automatically maps those `NEXT_PUBLIC_FB_*` secrets into both `NEXT_PUBLIC_FB_*` and `FB_WEB_*` env vars during deploy, so you do not need two separate secret sets.
+4. Ensure the service account has:
 	- `roles/run.admin`
 	- `roles/iam.serviceAccountUser`
 	- `roles/cloudbuild.builds.editor`
 	- `roles/artifactregistry.writer`
-4. Push to `main` (or run the workflow manually with **Run workflow**) to deploy.
+5. Push to `main` (or run the workflow manually with **Run workflow**) to deploy.
 
 This keeps deployment repeatable and avoids pasting long deploy commands each time.
 
