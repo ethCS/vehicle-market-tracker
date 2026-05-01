@@ -1,0 +1,20 @@
+# Speed up gcloud source uploads for Cloud Run builds.
+.git
+.github
+.next
+node_modules
+.tools
+.dist
+
+# Local and editor files
+.env
+.env.*
+.vscode
+*.log
+
+# TypeScript incremental artifacts
+tsconfig.tsbuildinfo
+
+# Firebase/Cloud Functions local artifacts
+functions/node_modules
+functions/lib

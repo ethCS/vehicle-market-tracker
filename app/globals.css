@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-top: #fef3c7;
+  --bg-mid: #f3f4f6;
+  --bg-bottom: #e0f2fe;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background-image:
+    radial-gradient(circle at 20% 10%, var(--bg-top), transparent 40%),
+    radial-gradient(circle at 90% 85%, var(--bg-bottom), transparent 35%),
+    linear-gradient(180deg, var(--bg-mid), #ffffff);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}

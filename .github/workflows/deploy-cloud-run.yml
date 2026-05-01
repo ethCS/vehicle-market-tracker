@@ -1,0 +1,47 @@
+name: Deploy Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cloud-run-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: vehicle-market-tracker
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy vehicle-market-tracker \
+            --source . \
+            --region us-central1 \
+            --quiet \
+            --set-env-vars "GCLOUD_PROJECT=vehicle-market-tracker,PUBSUB_TOPIC_INGEST=vehicle-ingest,PUBSUB_TOPIC_PRICES=price-ingest,FB_ADMIN_PROJECT_ID=vehicle-market-tracker,FB_WEB_API_KEY=${{ secrets.FB_WEB_API_KEY }},FB_WEB_AUTH_DOMAIN=${{ secrets.FB_WEB_AUTH_DOMAIN }},FB_WEB_PROJECT_ID=${{ secrets.FB_WEB_PROJECT_ID }},FB_WEB_STORAGE_BUCKET=${{ secrets.FB_WEB_STORAGE_BUCKET }},FB_WEB_MESSAGING_SENDER_ID=${{ secrets.FB_WEB_MESSAGING_SENDER_ID }},FB_WEB_APP_ID=${{ secrets.FB_WEB_APP_ID }},NEXT_PUBLIC_FB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},NEXT_PUBLIC_FB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},NEXT_PUBLIC_FB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},NEXT_PUBLIC_FB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},NEXT_PUBLIC_FB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }}" \
+            --set-secrets "INGEST_SECRET=INGEST_SECRET:latest"
+
+      - name: Show deployed service URL
+        run: |
+          gcloud run services describe vehicle-market-tracker \
+            --region us-central1 \
+            --format='value(status.url)'

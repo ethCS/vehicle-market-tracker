@@ -1,0 +1,23 @@
+{
+  "name": "vehicle-market-tracker-functions",
+  "version": "1.0.0",
+  "private": true,
+  "main": "lib/index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.10.0",
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.15",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.4"
+  }
+}
