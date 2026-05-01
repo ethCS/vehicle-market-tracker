@@ -250,8 +250,8 @@ const DotField = memo(({
 
     doResize();
     if (typeof window !== "undefined") {
-      window.addEventListener("resize", resize);
-      window.addEventListener("mousemove", onMouseMove, { passive: true });
+      (window as Window).addEventListener("resize", resize);
+      (window as Window).addEventListener("mousemove", onMouseMove, { passive: true });
     }
     rafRef.current = requestAnimationFrame(tick);
 
@@ -265,8 +265,8 @@ const DotField = memo(({
       clearInterval(speedInterval);
       clearTimeout(resizeTimer);
       if (typeof window !== "undefined") {
-        window.removeEventListener("resize", resize);
-        window.removeEventListener("mousemove", onMouseMove);
+        (window as Window).removeEventListener("resize", resize);
+        (window as Window).removeEventListener("mousemove", onMouseMove);
       }
     };
   }, []);
