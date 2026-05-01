@@ -45,7 +45,7 @@ export default function BuyScore({ score }: BuyScoreProps): JSX.Element {
   const offset = circumference - (safeScore / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-stroke bg-panel p-6 shadow-card">
+    <div className="flex flex-col items-center rounded-2xl glass-panel p-6">
       <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-ink/70">Buy Score</h3>
       <div className="relative mt-3 h-48 w-48">
         <svg className="h-48 w-48 -rotate-90" viewBox="0 0 180 180">

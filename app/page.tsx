@@ -168,7 +168,7 @@ export default function HomePage(): JSX.Element {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-fog">
+      <div className="flex min-h-screen items-center justify-center bg-transparent">
         <LoadingSpinner />
       </div>
     );
@@ -176,7 +176,7 @@ export default function HomePage(): JSX.Element {
 
   if (user === null) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-fog text-ink">
+      <main className="relative min-h-screen overflow-hidden bg-transparent text-ink">
         <div className="pointer-events-none absolute -left-24 top-6 h-80 w-80 rounded-full bg-brass/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-24 bottom-8 h-96 w-96 rounded-full bg-sky-500/10 blur-3xl" />
 
@@ -207,7 +207,7 @@ export default function HomePage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => router.push("/login")}
-                className="rounded-lg bg-brass px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-slate-900 transition-transform hover:-translate-y-0.5"
+                className="rounded-lg bg-brass px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5"
               >
                 Get Started
               </button>
@@ -234,17 +234,17 @@ export default function HomePage(): JSX.Element {
               featuresHighlighted ? "shadow-[0_0_0_3px_rgba(56,189,248,0.55)]" : ""
             }`}
           >
-            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
+            <article className="rounded-2xl glass-panel p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Signal</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Trend Direction</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">Understand if a vehicle market is moving up, flat, or down.</p>
             </article>
-            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
+            <article className="rounded-2xl glass-panel p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Risk</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Volatility Score</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">See how noisy price moves are before timing your purchase.</p>
             </article>
-            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
+            <article className="rounded-2xl glass-panel p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Decision</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Buy vs Wait</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">Get a single recommendation backed by current market signals.</p>
@@ -256,7 +256,7 @@ export default function HomePage(): JSX.Element {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-8 md:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-6xl bg-transparent px-4 pb-16 pt-8 md:px-8">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">CSCI391 Final Project</p>
         <div className="flex items-center gap-3">
@@ -270,7 +270,7 @@ export default function HomePage(): JSX.Element {
           </button>
         </div>
       </div>
-      <section className="animate-fade-up rounded-3xl border border-stroke bg-panel/80 p-5 shadow-card sm:p-7">
+      <section className="animate-fade-up rounded-3xl glass-panel p-5 sm:p-7">
         <h1 className="mt-3 max-w-3xl text-4xl uppercase leading-tight text-ink md:text-6xl">
           Vehicle Market Intelligence
         </h1>

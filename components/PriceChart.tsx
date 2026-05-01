@@ -35,7 +35,7 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
     }));
 
   return (
-    <div className="h-72 w-full rounded-2xl border border-stroke bg-panel p-4 shadow-card md:h-80">
+    <div className="h-72 w-full rounded-2xl glass-panel p-4 md:h-80">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="4 4" stroke="#22304f" />
@@ -57,7 +57,7 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
           <Line
             type="monotone"
             dataKey="avgPrice"
-            stroke="#38bdf8"
+            stroke="#a78bfa"
             strokeWidth={3}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}

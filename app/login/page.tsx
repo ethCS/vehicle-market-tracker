@@ -38,7 +38,7 @@ export default function LoginPage(): JSX.Element {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-fog px-4 py-10 sm:px-6">
-      <section className="w-full max-w-md rounded-3xl border border-stroke bg-panel/90 p-6 shadow-card sm:p-8">
+      <section className="w-full max-w-md rounded-3xl glass-panel p-6 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">Secure Sign In</p>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink">
           Vehicle Market Tracker

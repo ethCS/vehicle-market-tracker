@@ -11,12 +11,12 @@ const config: Config = {
       colors: {
         ink: "#e5edf8",
         fog: "#070b14",
-        brass: "#38bdf8",
+        brass: "#a78bfa",
         pine: "#22c55e",
         clay: "#fb7185",
-        panel: "#0f172a",
-        "panel-soft": "#111c33",
-        stroke: "#1f2a44"
+        panel: "#120c24",
+        "panel-soft": "#181133",
+        stroke: "#2b1f4f"
       },
       fontFamily: {
         display: ["Oswald", "sans-serif"],

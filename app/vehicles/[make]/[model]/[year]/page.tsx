@@ -106,7 +106,7 @@ export default function VehicleDetailPage({
         <Link href="/" className="text-sm font-semibold uppercase tracking-[0.14em] text-brass">
           Back to Search
         </Link>
-        <p className="mt-8 rounded-xl border border-stroke bg-panel p-6 text-sm font-semibold text-clay shadow-card">
+        <p className="mt-8 rounded-xl glass-panel p-6 text-sm font-semibold text-clay">
           Unable to load vehicle data right now.
         </p>
       </main>
@@ -122,7 +122,7 @@ export default function VehicleDetailPage({
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-8 text-ink md:px-8">
-      <header className="rounded-3xl border border-stroke bg-panel/85 p-6 shadow-card backdrop-blur md:p-8">
+      <header className="rounded-3xl glass-panel p-6 md:p-8">
         <Link href="/" className="text-xs font-semibold uppercase tracking-[0.16em] text-brass">
           Back to Search
         </Link>
@@ -135,7 +135,7 @@ export default function VehicleDetailPage({
       </header>
 
       <section className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-stroke bg-panel p-6 shadow-card md:col-span-2">
+        <div className="rounded-2xl glass-panel p-6 md:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/70">Current Average Price</p>
           <div className="mt-3 flex items-end gap-3">
             <span className="text-5xl font-display text-ink">{formatMoney(currentAvg)}</span>
@@ -156,7 +156,7 @@ export default function VehicleDetailPage({
         />
       </section>
 
-      <section className="mt-6 rounded-2xl border border-stroke bg-panel p-6 shadow-card">
+      <section className="mt-6 rounded-2xl glass-panel p-6">
         <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/70">Volatility Meter</h3>
         <div className="mt-4 h-4 w-full overflow-hidden rounded-full bg-panel-soft">
           <div
@@ -174,7 +174,7 @@ export default function VehicleDetailPage({
         </p>
       </section>
 
-      <section className="mt-6 grid gap-4 rounded-2xl border border-stroke bg-panel p-6 shadow-card md:grid-cols-3">
+      <section className="mt-6 grid gap-4 rounded-2xl glass-panel p-6 md:grid-cols-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Minimum</p>
           <p className="mt-2 text-2xl font-display text-ink">

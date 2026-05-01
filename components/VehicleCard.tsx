@@ -15,7 +15,7 @@ export default function VehicleCard({
     <button
       type="button"
       onClick={onSelect}
-      className="w-full rounded-2xl border border-stroke bg-panel p-4 text-left shadow-card transition hover:-translate-y-0.5 hover:border-brass/70"
+      className="w-full rounded-2xl glass-panel p-4 text-left transition hover:-translate-y-0.5 hover:border-brass/70"
     >
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/60">Recently searched</p>
       <h3 className="mt-2 text-xl font-display uppercase tracking-wide text-ink">

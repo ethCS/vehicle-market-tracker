@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Manrope, Oswald } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
+import ColorBends from "@/components/ColorBends";
+import DotField from "@/components/DotField";
 import "./globals.css";
+import "../reactbits-background.css";
 
 type FirebaseRuntimeConfig = {
   apiKey: string;
@@ -62,13 +65,40 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${displayFont.variable} ${bodyFont.variable} bg-fog text-ink antialiased`}>
+      <body className={`${displayFont.variable} ${bodyFont.variable} relative isolate bg-[#120f17] text-ink antialiased`}>
+        <ColorBends
+          colors={["#a855f7", "#d946ef", "#7c3aed"]}
+          rotation={90}
+          speed={0.2}
+          scale={1}
+          frequency={1}
+          warpStrength={1}
+          mouseInfluence={0.5}
+          parallax={0.5}
+          noise={0.15}
+          iterations={1}
+          intensity={1.3}
+          bandWidth={6}
+          transparent
+        />
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={14}
+          bulgeStrength={67}
+          glowRadius={160}
+          sparkle={false}
+          waveAmplitude={0}
+          className="pointer-events-none"
+          style={{ position: "fixed", inset: 0, zIndex: 5 }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.__FB_CONFIG__ = ${serializedConfig};`
           }}
         />
-        <AuthProvider>{children}</AuthProvider>
+        <div className="relative z-10">
+          <AuthProvider>{children}</AuthProvider>
+        </div>
       </body>
     </html>
   );

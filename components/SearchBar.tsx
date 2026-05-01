@@ -45,7 +45,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
   return (
     <form
       onSubmit={submit}
-      className="rounded-3xl border border-stroke bg-panel/80 p-5 shadow-card backdrop-blur md:p-8"
+      className="rounded-3xl glass-panel p-5 md:p-8"
     >
       <div className="grid gap-4 md:grid-cols-3">
         <label className="flex flex-col gap-2">
@@ -86,7 +86,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-brass px-5 py-3 text-sm font-bold uppercase tracking-[0.15em] text-slate-900 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl bg-brass px-5 py-3 text-sm font-bold uppercase tracking-[0.15em] text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? "Searching..." : "Analyze Vehicle"}
         </button>
