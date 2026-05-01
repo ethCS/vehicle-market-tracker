@@ -35,24 +35,29 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
     }));
 
   return (
-    <div className="h-72 w-full rounded-2xl bg-white p-4 shadow-card md:h-80">
+    <div className="h-72 w-full rounded-2xl border border-stroke bg-panel p-4 shadow-card md:h-80">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="4 4" stroke="#d1d5db" />
-          <XAxis dataKey="date" stroke="#4b5563" minTickGap={20} />
+          <CartesianGrid strokeDasharray="4 4" stroke="#22304f" />
+          <XAxis dataKey="date" stroke="#c7d2e6" minTickGap={20} />
           <YAxis
-            stroke="#4b5563"
+            stroke="#c7d2e6"
             tickFormatter={(value) => `$${Number(value).toLocaleString("en-US")}`}
             width={84}
           />
           <Tooltip
             formatter={(value) => formatDollars(Number(value))}
-            wrapperClassName="rounded-xl border border-gray-300 bg-white"
+            contentStyle={{
+              borderRadius: "0.75rem",
+              border: "1px solid #22304f",
+              backgroundColor: "#0f172a",
+              color: "#e5edf8"
+            }}
           />
           <Line
             type="monotone"
             dataKey="avgPrice"
-            stroke="#b45309"
+            stroke="#38bdf8"
             strokeWidth={3}
             dot={{ r: 3 }}
             activeDot={{ r: 5 }}

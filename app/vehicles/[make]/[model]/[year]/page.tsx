@@ -106,7 +106,7 @@ export default function VehicleDetailPage({
         <Link href="/" className="text-sm font-semibold uppercase tracking-[0.14em] text-brass">
           Back to Search
         </Link>
-        <p className="mt-8 rounded-xl bg-white p-6 text-sm font-semibold text-clay shadow-card">
+        <p className="mt-8 rounded-xl border border-stroke bg-panel p-6 text-sm font-semibold text-clay shadow-card">
           Unable to load vehicle data right now.
         </p>
       </main>
@@ -121,12 +121,12 @@ export default function VehicleDetailPage({
   const band = volatilityBand(volatility);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-8 md:px-8">
-      <header className="rounded-3xl bg-white/80 p-6 shadow-card backdrop-blur md:p-8">
+    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-8 text-ink md:px-8">
+      <header className="rounded-3xl border border-stroke bg-panel/85 p-6 shadow-card backdrop-blur md:p-8">
         <Link href="/" className="text-xs font-semibold uppercase tracking-[0.16em] text-brass">
           Back to Search
         </Link>
-        <h1 className="mt-3 text-4xl uppercase leading-tight text-ink md:text-5xl">
+        <h1 className="mt-3 text-3xl uppercase leading-tight text-ink sm:text-4xl md:text-5xl">
           {data.vehicle.year} {data.vehicle.make} {data.vehicle.model}
         </h1>
         <p className="mt-3 text-sm font-medium text-ink/75">
@@ -135,7 +135,7 @@ export default function VehicleDetailPage({
       </header>
 
       <section className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl bg-white p-6 shadow-card md:col-span-2">
+        <div className="rounded-2xl border border-stroke bg-panel p-6 shadow-card md:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/70">Current Average Price</p>
           <div className="mt-3 flex items-end gap-3">
             <span className="text-5xl font-display text-ink">{formatMoney(currentAvg)}</span>
@@ -156,9 +156,9 @@ export default function VehicleDetailPage({
         />
       </section>
 
-      <section className="mt-6 rounded-2xl bg-white p-6 shadow-card">
+      <section className="mt-6 rounded-2xl border border-stroke bg-panel p-6 shadow-card">
         <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/70">Volatility Meter</h3>
-        <div className="mt-4 h-4 w-full overflow-hidden rounded-full bg-gray-200">
+        <div className="mt-4 h-4 w-full overflow-hidden rounded-full bg-panel-soft">
           <div
             className={`h-full rounded-full ${
               band === "low"
@@ -174,7 +174,7 @@ export default function VehicleDetailPage({
         </p>
       </section>
 
-      <section className="mt-6 grid gap-4 rounded-2xl bg-white p-6 shadow-card md:grid-cols-3">
+      <section className="mt-6 grid gap-4 rounded-2xl border border-stroke bg-panel p-6 shadow-card md:grid-cols-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Minimum</p>
           <p className="mt-2 text-2xl font-display text-ink">

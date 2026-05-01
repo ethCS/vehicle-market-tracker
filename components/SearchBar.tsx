@@ -45,7 +45,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
   return (
     <form
       onSubmit={submit}
-      className="rounded-3xl border border-white/40 bg-white/75 p-5 shadow-card backdrop-blur md:p-8"
+      className="rounded-3xl border border-stroke bg-panel/80 p-5 shadow-card backdrop-blur md:p-8"
     >
       <div className="grid gap-4 md:grid-cols-3">
         <label className="flex flex-col gap-2">
@@ -53,7 +53,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
           <input
             value={form.make}
             onChange={(event) => setForm((prev) => ({ ...prev, make: event.target.value }))}
-            className="rounded-xl border border-ink/20 bg-white px-4 py-3 text-sm outline-none ring-brass transition focus:ring-2"
+            className="rounded-xl border border-stroke bg-panel-soft px-4 py-3 text-sm text-ink outline-none ring-brass transition placeholder:text-ink/35 focus:ring-2"
             placeholder="Toyota"
           />
         </label>
@@ -64,7 +64,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
             onChange={(event) =>
               setForm((prev) => ({ ...prev, model: event.target.value }))
             }
-            className="rounded-xl border border-ink/20 bg-white px-4 py-3 text-sm outline-none ring-brass transition focus:ring-2"
+            className="rounded-xl border border-stroke bg-panel-soft px-4 py-3 text-sm text-ink outline-none ring-brass transition placeholder:text-ink/35 focus:ring-2"
             placeholder="Camry"
           />
         </label>
@@ -74,7 +74,7 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
             type="number"
             value={form.year}
             onChange={(event) => setForm((prev) => ({ ...prev, year: event.target.value }))}
-            className="rounded-xl border border-ink/20 bg-white px-4 py-3 text-sm outline-none ring-brass transition focus:ring-2"
+            className="rounded-xl border border-stroke bg-panel-soft px-4 py-3 text-sm text-ink outline-none ring-brass transition placeholder:text-ink/35 focus:ring-2"
             placeholder="2022"
             min={1995}
             max={currentYear}
@@ -82,11 +82,11 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
         </label>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-4">
+      <div className="mt-5 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-ink px-5 py-3 text-sm font-bold uppercase tracking-[0.15em] text-fog transition hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl bg-brass px-5 py-3 text-sm font-bold uppercase tracking-[0.15em] text-slate-900 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? "Searching..." : "Analyze Vehicle"}
         </button>

@@ -9,18 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#111827",
-        fog: "#f3f4f6",
-        brass: "#b45309",
-        pine: "#166534",
-        clay: "#9a3412"
+        ink: "#e5edf8",
+        fog: "#070b14",
+        brass: "#38bdf8",
+        pine: "#22c55e",
+        clay: "#fb7185",
+        panel: "#0f172a",
+        "panel-soft": "#111c33",
+        stroke: "#1f2a44"
       },
       fontFamily: {
         display: ["Oswald", "sans-serif"],
         body: ["Manrope", "sans-serif"]
       },
       boxShadow: {
-        card: "0 20px 35px -20px rgba(17, 24, 39, 0.35)"
+        card: "0 24px 45px -24px rgba(4, 10, 25, 0.85)"
       },
       animation: {
         "fade-up": "fadeUp 500ms ease-out",

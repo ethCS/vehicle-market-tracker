@@ -176,30 +176,30 @@ export default function HomePage(): JSX.Element {
 
   if (user === null) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-fog">
-        <div className="pointer-events-none absolute -left-20 top-10 h-72 w-72 rounded-full bg-brass/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-ink/10 blur-3xl" />
+      <main className="relative min-h-screen overflow-hidden bg-fog text-ink">
+        <div className="pointer-events-none absolute -left-24 top-6 h-80 w-80 rounded-full bg-brass/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-8 h-96 w-96 rounded-full bg-sky-500/10 blur-3xl" />
 
-        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 pb-16 pt-10 md:px-10">
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 pb-16 pt-8 md:px-10">
           <header className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">CSCI391 Final Project</p>
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className="rounded-md border border-ink/15 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:bg-white"
+              className="rounded-md border border-stroke bg-panel-soft/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:bg-panel"
             >
               Sign in
             </button>
           </header>
 
-          <section className="mt-20 animate-fade-up md:mt-28">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/60">
+          <section className="mt-14 animate-fade-up md:mt-20">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/70">
               Market Intelligence for Used Vehicles
             </p>
-            <h1 className="mt-4 max-w-4xl text-5xl uppercase leading-[0.95] text-ink md:text-7xl">
+            <h1 className="mt-4 max-w-4xl text-4xl uppercase leading-[0.95] text-ink sm:text-5xl md:text-7xl">
               Spot price momentum before you buy.
             </h1>
-            <p className="mt-6 max-w-2xl text-base font-medium text-ink/75 md:text-lg">
+            <p className="mt-5 max-w-2xl text-sm font-medium text-ink/75 sm:text-base md:text-lg">
               Track trend direction, volatility, and a buy-vs-wait recommendation for any make, model, and year.
               Start with the splash experience, then sign in when you are ready to search.
             </p>
@@ -207,7 +207,7 @@ export default function HomePage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => router.push("/login")}
-                className="rounded-lg bg-ink px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-fog transition-transform hover:-translate-y-0.5"
+                className="rounded-lg bg-brass px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-slate-900 transition-transform hover:-translate-y-0.5"
               >
                 Get Started
               </button>
@@ -221,7 +221,7 @@ export default function HomePage(): JSX.Element {
                     window.setTimeout(() => setFeaturesHighlighted(false), 1200);
                   }
                 }}
-                className="rounded-lg border border-ink/20 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:bg-white/70"
+                className="rounded-lg border border-stroke bg-panel-soft px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:bg-panel"
               >
                 Explore Features
               </button>
@@ -231,20 +231,20 @@ export default function HomePage(): JSX.Element {
           <section
             id="features"
             className={`mt-20 grid gap-4 rounded-2xl transition-shadow duration-300 md:grid-cols-3 ${
-              featuresHighlighted ? "shadow-[0_0_0_3px_rgba(181,140,63,0.45)]" : ""
+              featuresHighlighted ? "shadow-[0_0_0_3px_rgba(56,189,248,0.55)]" : ""
             }`}
           >
-            <article className="rounded-2xl border border-ink/10 bg-white/80 p-6">
+            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Signal</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Trend Direction</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">Understand if a vehicle market is moving up, flat, or down.</p>
             </article>
-            <article className="rounded-2xl border border-ink/10 bg-white/80 p-6">
+            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Risk</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Volatility Score</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">See how noisy price moves are before timing your purchase.</p>
             </article>
-            <article className="rounded-2xl border border-ink/10 bg-white/80 p-6">
+            <article className="rounded-2xl border border-stroke bg-panel/90 p-6 shadow-card">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Decision</p>
               <h2 className="mt-2 text-xl uppercase text-ink">Buy vs Wait</h2>
               <p className="mt-3 text-sm font-medium text-ink/70">Get a single recommendation backed by current market signals.</p>
@@ -256,21 +256,21 @@ export default function HomePage(): JSX.Element {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-10 md:px-8">
+    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-8 md:px-8">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">CSCI391 Final Project</p>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-ink/60 truncate max-w-[180px]">{user.email ?? user.displayName ?? ""}</span>
+          <span className="max-w-[180px] truncate text-xs text-ink/60">{user.email ?? user.displayName ?? ""}</span>
           <button
             type="button"
             onClick={() => void signOutUser()}
-            className="rounded-md border border-ink/10 px-3 py-1 text-xs font-medium text-ink/70 hover:bg-ink/5 transition-colors"
+            className="rounded-md border border-stroke bg-panel-soft px-3 py-1 text-xs font-medium text-ink/80 transition-colors hover:bg-panel"
           >
             Sign out
           </button>
         </div>
       </div>
-      <section className="animate-fade-up">
+      <section className="animate-fade-up rounded-3xl border border-stroke bg-panel/80 p-5 shadow-card sm:p-7">
         <h1 className="mt-3 max-w-3xl text-4xl uppercase leading-tight text-ink md:text-6xl">
           Vehicle Market Intelligence
         </h1>
@@ -280,7 +280,7 @@ export default function HomePage(): JSX.Element {
         </p>
       </section>
 
-      <section className="mt-8 animate-fade-up [animation-delay:120ms]">
+      <section className="mt-6 animate-fade-up [animation-delay:120ms]">
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
         <div className="mt-4 min-h-8">
           {isLoading && <LoadingSpinner />}
@@ -299,7 +299,7 @@ export default function HomePage(): JSX.Element {
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {recent.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-ink/20 bg-white/70 p-8 text-sm font-medium text-ink/70">
+            <div className="rounded-2xl border border-dashed border-stroke bg-panel-soft p-8 text-sm font-medium text-ink/70">
               No previous searches yet.
             </div>
           ) : (

@@ -37,20 +37,22 @@ export default function LoginPage(): JSX.Element {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-fog px-6">
-      <h1 className="font-display text-4xl font-bold tracking-tight text-ink">
-        Vehicle Market Tracker
-      </h1>
-      <p className="max-w-sm text-center text-sm text-ink/60">
-        Search real-time pricing trends and get a buy-vs-wait score for any
-        make, model, and year.
-      </p>
-      <button
-        type="button"
-        onClick={() => void handleGoogleSignIn()}
-        disabled={isSigningIn}
-        className="flex items-center gap-3 rounded-lg border border-ink/10 bg-white px-6 py-3 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-70"
-      >
+    <main className="flex min-h-screen items-center justify-center bg-fog px-4 py-10 sm:px-6">
+      <section className="w-full max-w-md rounded-3xl border border-stroke bg-panel/90 p-6 shadow-card sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">Secure Sign In</p>
+        <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink">
+          Vehicle Market Tracker
+        </h1>
+        <p className="mt-4 max-w-sm text-sm text-ink/60">
+          Search real-time pricing trends and get a buy-vs-wait score for any
+          make, model, and year.
+        </p>
+        <button
+          type="button"
+          onClick={() => void handleGoogleSignIn()}
+          disabled={isSigningIn}
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-stroke bg-panel-soft px-6 py-3 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-panel disabled:cursor-not-allowed disabled:opacity-70"
+        >
         <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -69,13 +71,14 @@ export default function LoginPage(): JSX.Element {
             fill="#EA4335"
           />
         </svg>
-        {isSigningIn ? "Starting sign-in..." : "Continue with Google"}
-      </button>
-      {authError !== null && (
-        <p className="max-w-md rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-          {authError}
-        </p>
-      )}
+          {isSigningIn ? "Starting sign-in..." : "Continue with Google"}
+        </button>
+        {authError !== null && (
+          <p className="mt-4 max-w-md rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
+            {authError}
+          </p>
+        )}
+      </section>
     </main>
   );
 }
