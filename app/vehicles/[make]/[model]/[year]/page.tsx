@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import useSWR from "swr";
 import BuyScore from "@/components/BuyScore";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import PriceChart from "@/components/PriceChart";
+import { useAuth } from "@/components/AuthProvider";
 
 type DetailResponse = {
   vehicle: {
@@ -126,11 +127,37 @@ export default function VehicleDetailPage({
     [params.make, params.model, params.year]
   );
 
+  const { user } = useAuth();
+  const trackedRef = useRef(false);
+
   const { data, error, isLoading } = useSWR<DetailResponse>(
     `/api/vehicles/${vehicleId}`,
     fetcher,
     { revalidateOnFocus: false }
   );
+
+  useEffect(() => {
+    if (data === undefined || trackedRef.current) {
+      return;
+    }
+
+    trackedRef.current = true;
+
+    if (user === null) {
+      return;
+    }
+
+    void user.getIdToken().then((token) => {
+      return fetch("/api/users/track-search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ vehicleId })
+      });
+    });
+  }, [data, user, vehicleId]);
 
   if (isLoading) {
     return (

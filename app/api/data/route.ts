@@ -47,22 +47,74 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const decoded = await adminAuth.verifyIdToken(token);
-    const userSnapshot = await adminDb.collection("users").doc(decoded.uid).get();
+    const uid = decoded.uid;
+
+    // Fetch user profile doc
+    const userSnapshot = await adminDb.collection("users").doc(uid).get();
     const userRecord = userSnapshot.exists
       ? [{ id: userSnapshot.id, ...(toIsoString(userSnapshot.data()) as UnknownRecord) }]
       : [];
 
+    // Fetch vehicleIds this user has searched
+    const searchesSnapshot = await adminDb
+      .collection("users")
+      .doc(uid)
+      .collection("searches")
+      .get();
+
+    const vehicleIds = searchesSnapshot.docs.map((doc) => doc.id);
+
+    if (vehicleIds.length === 0) {
+      return NextResponse.json(
+        {
+          counts: { vehicles: 0, priceSnapshots: 0, analytics: 0, users: userRecord.length },
+          vehicles: [],
+          priceSnapshots: [],
+          analytics: [],
+          users: userRecord
+        },
+        { status: 200 }
+      );
+    }
+
+    // Fetch vehicles, analytics, and price snapshots for those vehicleIds in parallel
+    const [vehicleDocs, analyticsDocs, snapshotDocs] = await Promise.all([
+      Promise.all(
+        vehicleIds.map((id) => adminDb.collection("vehicles").doc(id).get())
+      ),
+      Promise.all(
+        vehicleIds.map((id) => adminDb.collection("analytics").doc(id).get())
+      ),
+      adminDb
+        .collection("price_snapshots")
+        .where("vehicleId", "in", vehicleIds.slice(0, 30))
+        .get()
+    ]);
+
+    const vehicles = vehicleDocs
+      .filter((doc) => doc.exists)
+      .map((doc) => ({ id: doc.id, ...(toIsoString(doc.data()) as UnknownRecord) }));
+
+    const analytics = analyticsDocs
+      .filter((doc) => doc.exists)
+      .map((doc) => ({ id: doc.id, ...(toIsoString(doc.data()) as UnknownRecord) }));
+
+    const priceSnapshots = snapshotDocs.docs.map((doc) => ({
+      id: doc.id,
+      ...(toIsoString(doc.data()) as UnknownRecord)
+    }));
+
     return NextResponse.json(
       {
         counts: {
-          vehicles: 0,
-          priceSnapshots: 0,
-          analytics: 0,
+          vehicles: vehicles.length,
+          priceSnapshots: priceSnapshots.length,
+          analytics: analytics.length,
           users: userRecord.length
         },
-        vehicles: [],
-        priceSnapshots: [],
-        analytics: [],
+        vehicles,
+        priceSnapshots,
+        analytics,
         users: userRecord
       },
       { status: 200 }
@@ -76,3 +128,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 }
+
