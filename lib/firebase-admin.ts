@@ -12,7 +12,6 @@ function resolveCredential() {
 
   try {
     if (!existsSync(credentialsPath) || !statSync(credentialsPath).isFile()) {
-      // Invalid file path can break ADC fallback; remove it and continue.
       delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
       return undefined;
     }

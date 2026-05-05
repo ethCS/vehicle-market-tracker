@@ -32,7 +32,6 @@ export function computePriceDirection(
 
   const changePercent = ((last - first) / first) * 100;
 
-  // Ignore tiny movement likely caused by listing noise.
   if (Math.abs(changePercent) < 0.35) {
     return "stable";
   }

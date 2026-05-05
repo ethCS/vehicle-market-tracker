@@ -49,13 +49,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const decoded = await adminAuth.verifyIdToken(token);
     const uid = decoded.uid;
 
-    // Fetch user profile doc
     const userSnapshot = await adminDb.collection("users").doc(uid).get();
     const userRecord = userSnapshot.exists
       ? [{ id: userSnapshot.id, ...(toIsoString(userSnapshot.data()) as UnknownRecord) }]
       : [];
 
-    // Fetch vehicleIds this user has searched
     const searchesSnapshot = await adminDb
       .collection("users")
       .doc(uid)
@@ -77,7 +75,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Fetch vehicles, analytics, and price snapshots for those vehicleIds in parallel
     const [vehicleDocs, analyticsDocs, snapshotDocs] = await Promise.all([
       Promise.all(
         vehicleIds.map((id) => adminDb.collection("vehicles").doc(id).get())

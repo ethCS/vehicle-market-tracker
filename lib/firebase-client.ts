@@ -29,8 +29,6 @@ function getClientConfig(): FirebaseClientConfig {
   };
 }
 
-// Lazy init — browser only. Runtime config is injected by app layout so Cloud
-// Run env vars are available even when NEXT_PUBLIC values were not set at build.
 export function getFirebaseApp(): FirebaseApp | null {
   if (typeof window === "undefined") return null;
   const clientConfig = getClientConfig();

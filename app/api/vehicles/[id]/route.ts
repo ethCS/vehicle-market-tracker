@@ -95,7 +95,6 @@ function dateKeyFromListing(listing: MarketCheckListing): string | null {
 
   const parsed = new Date(raw);
   if (!Number.isNaN(parsed.getTime())) {
-    // Bucket by hour when timestamp precision exists to avoid collapsing all points into one day.
     parsed.setUTCMinutes(0, 0, 0);
     return parsed.toISOString();
   }
