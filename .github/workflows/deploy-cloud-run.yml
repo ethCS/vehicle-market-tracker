@@ -51,13 +51,24 @@ jobs:
           echo "Using runtime service account: $RUNTIME_SA"
           echo "RUNTIME_SA=${RUNTIME_SA}" >> "$GITHUB_ENV"
 
+      - name: Normalize Existing Secret Bindings
+        run: |
+          if gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run services update "$SERVICE" \
+              --region "$REGION" \
+              --project "$PROJECT_ID" \
+              --clear-secrets \
+              --quiet
+          else
+            echo "Service does not exist yet; skipping secret binding normalization."
+          fi
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy "$SERVICE" \
             --source . \
             --region "$REGION" \
             --service-account "$RUNTIME_SA" \
-            --clear-secrets \
             --clear-base-image \
             --quiet \
             --set-env-vars "GCLOUD_PROJECT=${PROJECT_ID},PUBSUB_TOPIC_INGEST=vehicle-ingest,PUBSUB_TOPIC_PRICES=price-ingest,FB_ADMIN_PROJECT_ID=${PROJECT_ID},FB_WEB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},FB_WEB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},FB_WEB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},FB_WEB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},FB_WEB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},FB_WEB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},NEXT_PUBLIC_FB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},NEXT_PUBLIC_FB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},NEXT_PUBLIC_FB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},NEXT_PUBLIC_FB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},NEXT_PUBLIC_FB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},MARKETCHECK_COUNTRY=us,MARKETCHECK_ROWS=25" \
