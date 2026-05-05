@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 const MAX_COLORS = 8;
@@ -155,10 +155,11 @@ export default function ColorBends({
   const pointerTargetRef = useRef(new THREE.Vector2(0, 0));
   const pointerCurrentRef = useRef(new THREE.Vector2(0, 0));
   const pointerSmoothRef = useRef(8);
+  const [webglFailed, setWebglFailed] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || webglFailed) return;
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -195,11 +196,22 @@ export default function ColorBends({
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: false,
-      powerPreference: "high-performance",
-      alpha: true,
-    });
+    let renderer: THREE.WebGLRenderer;
+
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        powerPreference: "high-performance",
+        alpha: true,
+      });
+    } catch (error) {
+      console.warn("ColorBends disabled: could not create WebGL context.", error);
+      geometry.dispose();
+      material.dispose();
+      setWebglFailed(true);
+      return;
+    }
+
     rendererRef.current = renderer;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2));
@@ -266,7 +278,20 @@ export default function ColorBends({
         container.removeChild(renderer.domElement);
       }
     };
-  }, [bandWidth, frequency, intensity, iterations, mouseInfluence, noise, parallax, scale, speed, transparent, warpStrength]);
+  }, [
+    bandWidth,
+    frequency,
+    intensity,
+    iterations,
+    mouseInfluence,
+    noise,
+    parallax,
+    scale,
+    speed,
+    transparent,
+    warpStrength,
+    webglFailed
+  ]);
 
   useEffect(() => {
     const material = materialRef.current;
@@ -350,6 +375,19 @@ export default function ColorBends({
       container.removeEventListener("pointermove", handlePointerMove);
     };
   }, []);
+
+  if (webglFailed) {
+    return (
+      <div
+        className={`fixed inset-0 -z-10 h-full w-full overflow-hidden pointer-events-none ${className}`}
+        style={{
+          ...style,
+          background:
+            "radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.32), transparent 34%), radial-gradient(circle at 75% 18%, rgba(217, 70, 239, 0.24), transparent 28%), linear-gradient(180deg, rgba(18, 15, 23, 0.94), rgba(18, 15, 23, 0.72))"
+        }}
+      />
+    );
+  }
 
   return (
     <div
