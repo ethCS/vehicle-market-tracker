@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 
+export const dynamic = "force-dynamic";
+
 type UnknownRecord = Record<string, unknown>;
 
 function toIsoString(value: unknown): unknown {
