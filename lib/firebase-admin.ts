@@ -1,10 +1,23 @@
 import { applicationDefault, cert, getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { existsSync, statSync } from "node:fs";
 import { readFileSync } from "node:fs";
 
 function resolveCredential() {
   const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (credentialsPath === undefined || credentialsPath.trim() === "") {
+    return undefined;
+  }
+
+  try {
+    if (!existsSync(credentialsPath) || !statSync(credentialsPath).isFile()) {
+      // Invalid file path can break ADC fallback; remove it and continue.
+      delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
+      return undefined;
+    }
+  } catch {
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
     return undefined;
   }
 
@@ -30,6 +43,7 @@ function resolveCredential() {
       privateKey: parsed.private_key
     });
   } catch {
+    delete process.env.GOOGLE_APPLICATION_CREDENTIALS;
     return undefined;
   }
 }
@@ -54,3 +68,4 @@ const app =
   })();
 
 export const adminDb = getFirestore(app);
+export const adminAuth = getAuth(app);

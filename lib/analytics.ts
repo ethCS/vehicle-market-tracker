@@ -24,33 +24,20 @@ export function computePriceDirection(
     (a, b) => a.capturedAt.toMillis() - b.capturedAt.toMillis()
   );
 
-  const xValues = sorted.map((snapshot) => snapshot.capturedAt.toMillis());
-  const yValues = sorted.map((snapshot) => snapshot.avgPrice);
-
-  const xMean = xValues.reduce((sum, value) => sum + value, 0) / xValues.length;
-  const yMean = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
-
-  let numerator = 0;
-  let denominator = 0;
-
-  for (let i = 0; i < xValues.length; i += 1) {
-    numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
-    denominator += (xValues[i] - xMean) ** 2;
-  }
-
-  if (denominator === 0) {
+  const first = sorted[0].avgPrice;
+  const last = sorted[sorted.length - 1].avgPrice;
+  if (first <= 0) {
     return "stable";
   }
 
-  const slopePerMillisecond = numerator / denominator;
-  const millisecondsInMonth = 1000 * 60 * 60 * 24 * 30;
-  const slopePerMonth = slopePerMillisecond * millisecondsInMonth;
+  const changePercent = ((last - first) / first) * 100;
 
-  if (Math.abs(slopePerMonth) < 50) {
+  // Ignore tiny movement likely caused by listing noise.
+  if (Math.abs(changePercent) < 0.35) {
     return "stable";
   }
 
-  return slopePerMonth > 0 ? "up" : "down";
+  return changePercent > 0 ? "up" : "down";
 }
 
 export function computeBuyScore(direction: string, volatility: number): number {

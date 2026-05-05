@@ -15,6 +15,9 @@ export interface Vehicle {
   fuelType?: string;
   engineCylinders?: number;
   trims?: string[];
+  specEnrichmentStatus?: "complete" | "unavailable";
+  specEnrichmentMessage?: string;
+  specEnrichmentCheckedAt?: Timestamp;
   lastUpdated: Timestamp;
 }
 
@@ -28,6 +31,9 @@ export interface VehicleResponse {
   fuelType?: string;
   engineCylinders?: number;
   trims?: string[];
+  specEnrichmentStatus?: "complete" | "unavailable";
+  specEnrichmentMessage?: string;
+  specEnrichmentCheckedAt?: string;
   lastUpdated: string;
 }
 
@@ -45,6 +51,9 @@ function normalizeVehicle(snapshot: QueryDocumentSnapshot<DocumentData>): Vehicl
     fuelType: data.fuelType,
     engineCylinders: data.engineCylinders,
     trims: data.trims,
+    specEnrichmentStatus: data.specEnrichmentStatus,
+    specEnrichmentMessage: data.specEnrichmentMessage,
+    specEnrichmentCheckedAt: data.specEnrichmentCheckedAt,
     lastUpdated: data.lastUpdated
   };
 }
@@ -67,10 +76,14 @@ export async function getVehicleById(id: string): Promise<Vehicle | null> {
 }
 
 export async function upsertVehicle(vehicle: Vehicle): Promise<void> {
+  const sanitized = Object.fromEntries(
+    Object.entries(vehicle).filter(([, value]) => value !== undefined)
+  );
+
   await adminDb
     .collection(VEHICLES_COLLECTION)
     .doc(vehicle.id)
-    .set(vehicle, { merge: true });
+    .set(sanitized, { merge: true });
 }
 
 export async function getRecentVehicles(limit = 5): Promise<Vehicle[]> {
@@ -94,6 +107,12 @@ export function toVehicleResponse(vehicle: Vehicle): VehicleResponse {
     fuelType: vehicle.fuelType,
     engineCylinders: vehicle.engineCylinders,
     trims: vehicle.trims,
+    specEnrichmentStatus: vehicle.specEnrichmentStatus,
+    specEnrichmentMessage: vehicle.specEnrichmentMessage,
+    specEnrichmentCheckedAt:
+      vehicle.specEnrichmentCheckedAt === undefined
+        ? undefined
+        : vehicle.specEnrichmentCheckedAt.toDate().toISOString(),
     lastUpdated: vehicle.lastUpdated.toDate().toISOString()
   };
 }

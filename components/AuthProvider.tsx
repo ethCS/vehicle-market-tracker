@@ -3,6 +3,7 @@
 import {
   type AuthError,
   GoogleAuthProvider,
+  getIdToken,
   onAuthStateChanged,
   signInWithRedirect,
   signInWithPopup,
@@ -64,6 +65,23 @@ function getAuthErrorMessage(error: unknown): string {
   return "Sign-in failed. Please try again.";
 }
 
+async function upsertUserProfile(user: User): Promise<void> {
+  const token = await getIdToken(user);
+  await fetch("/api/users/upsert", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL
+    })
+  });
+}
+
 export function useAuth(): AuthContextValue {
   return useContext(AuthContext);
 }
@@ -84,6 +102,7 @@ export function AuthProvider({
       setUser(firebaseUser);
       if (firebaseUser !== null) {
         setAuthError(null);
+        void upsertUserProfile(firebaseUser);
       }
       setLoading(false);
     });

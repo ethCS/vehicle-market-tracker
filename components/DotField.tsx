@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, memo } from "react";
-import "./DotField.css";
 
 const TWO_PI = Math.PI * 2;
 
@@ -278,7 +277,7 @@ const DotField = memo(({
   }, [dotRadius, dotSpacing]);
 
   return (
-    <div className={`dot-field-container ${className}`} style={style}>
+    <div className={`relative h-full w-full ${className}`} style={style}>
       <canvas
         ref={canvasRef}
         style={{

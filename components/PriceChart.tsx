@@ -27,10 +27,7 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
   const data = [...points]
     .sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime())
     .map((point) => ({
-      date: new Date(point.capturedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric"
-      }),
+      date: point.capturedAt,
       avgPrice: point.avgPrice
     }));
 
@@ -39,7 +36,22 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="4 4" stroke="#22304f" />
-          <XAxis dataKey="date" stroke="#c7d2e6" minTickGap={20} />
+          <XAxis
+            dataKey="date"
+            stroke="#c7d2e6"
+            minTickGap={28}
+            tickFormatter={(value) => {
+              const date = new Date(String(value));
+              if (Number.isNaN(date.getTime())) {
+                return String(value);
+              }
+
+              return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric"
+              });
+            }}
+          />
           <YAxis
             stroke="#c7d2e6"
             tickFormatter={(value) => `$${Number(value).toLocaleString("en-US")}`}
@@ -47,6 +59,19 @@ export default function PriceChart({ points }: PriceChartProps): JSX.Element {
           />
           <Tooltip
             formatter={(value) => formatDollars(Number(value))}
+            labelFormatter={(value) => {
+              const date = new Date(String(value));
+              if (Number.isNaN(date.getTime())) {
+                return String(value);
+              }
+
+              return date.toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+              });
+            }}
             contentStyle={{
               borderRadius: "0.75rem",
               border: "1px solid #22304f",

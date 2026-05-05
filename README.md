@@ -12,15 +12,39 @@ flowchart TD
 		CR -->|Publish ingest event| PS1["📨 Pub/Sub\nvehicle-ingest topic"]
 		PS1 -->|Push trigger| CF1["⚡ Cloud Function\ningestVehicles"]
 		CF1 -->|Fetch metadata| NHTSA["🌐 NHTSA vPIC API"]
-		CF1 -->|Fetch specs| CQ["🌐 CarQuery API"]
+		CF1 -->|Decode VIN specs| RAPID["🌐 RapidAPI car-api2"]
 		CF1 -->|Write vehicle doc| FS
 		CF1 -->|Publish price event| PS2["📨 Pub/Sub\nprice-ingest topic"]
 		PS2 -->|Push trigger| CF2["⚡ Cloud Function\ningestPrices"]
-		CF2 -->|Simulate prices + write| FS
+		CF2 -->|Fetch MarketCheck prices| MC["🌐 MarketCheck API"]
+		CF2 -->|Write price snapshots| FS
 		CF2 -->|Recompute analytics| CF3["⚡ Cloud Function\ncomputeAnalytics"]
 		CF3 -->|Write analytics doc| FS
-		SCHED["🕐 Cloud Scheduler\ndaily 2AM"] -->|Publish refresh| PS2
+		SCHED["🕐 Cloud Scheduler\ndaily 2AM"] -->|Publish seed vehicle| PS1
 ```
+
+## CSCI391 Constraint Mapping
+- Rule of Three (minimum):
+	- Compute layer: Cloud Run (Next.js web app + REST APIs)
+	- Data/state layer: Firestore (vehicles, snapshots, analytics)
+	- Event/background layer: Pub/Sub + Cloud Functions + Cloud Scheduler
+- No Monolith Clause:
+	- User-facing API and UI run on Cloud Run.
+	- Background ingestion and analytics run in separate Cloud Functions triggered by Pub/Sub.
+	- Data is exchanged asynchronously via Pub/Sub topics.
+- State Persistence:
+	- All persistent state is stored in Firestore collections (`vehicles`, `price_snapshots`, `analytics`).
+	- Container/function restarts do not affect persisted data.
+
+## Data Flow (Technical Write-Up)
+1. User submits make/model/year from the Cloud Run-hosted Next.js UI.
+2. `GET /api/search` checks Firestore for a cached vehicle document.
+3. If absent, Cloud Run publishes a message to Pub/Sub topic `vehicle-ingest` and returns `202 ingesting`.
+4. `ingestVehicles` Cloud Function consumes `vehicle-ingest`, calls NHTSA + MarketCheck + RapidAPI VIN decoding, and writes normalized vehicle metadata to Firestore.
+5. `ingestVehicles` publishes a follow-up message to `price-ingest`.
+6. `ingestPrices` Cloud Function consumes `price-ingest`, calls MarketCheck inventory search, computes snapshot avg/min/max, and writes to `price_snapshots`.
+7. `computeAnalytics` recomputes volatility, trend direction, and buy score and writes to `analytics`.
+8. Vehicle detail endpoint reads Firestore snapshots + analytics and returns chart-ready response.
 
 ## Local Development Setup
 1. Install dependencies:
@@ -35,7 +59,9 @@ npm install
 cp .env.local.example .env.local
 ```
 
-3. Download a Firebase service account JSON from Firebase Console and place it at `./service-account.json`.
+3. Configure server-side Firestore credentials by one of these methods:
+	- Preferred: download a Firebase service account JSON from Firebase Console and place it at `./service-account.json`.
+	- Alternative (local dev): run `./.tools/google-cloud-sdk/bin/gcloud.cmd auth application-default login`.
 4. Start the local Next.js server:
 
 ```bash
@@ -74,6 +100,17 @@ bash infra/setup-pubsub.sh
 bash infra/setup-scheduler.sh
 ```
 
+## Cloud Run Docker Build (Optional)
+If you need explicit container artifacts for submission or manual deploys, this repo includes a root `Dockerfile` and `.dockerignore`.
+
+```bash
+gcloud builds submit --tag gcr.io/vehicle-market-tracker/vehicle-market-tracker
+gcloud run deploy vehicle-market-tracker \
+	--image gcr.io/vehicle-market-tracker/vehicle-market-tracker \
+	--region us-central1 \
+	--allow-unauthenticated
+```
+
 ## GitHub Actions Deployment (Recommended)
 The repository includes an automated Cloud Run deploy workflow at `.github/workflows/deploy-cloud-run.yml`.
 
@@ -101,11 +138,16 @@ This keeps deployment repeatable and avoids pasting long deploy commands each ti
 	- Base URL: `https://vpic.nhtsa.dot.gov/api/`
 	- Endpoint used: `GET /vehicles/GetModelsForMakeYear/make/{make}/modelyear/{year}?format=json`
 	- Purpose: make/model/year validation and metadata
-- CarQuery:
-	- Base URL: `https://www.carqueryapi.com/api/0.3/`
-	- Endpoint used: `GET ?cmd=getTrims&make={make}&model={model}&year={year}`
-	- Purpose: trims/spec fields (`model_trim`, `model_drive`, `model_fuel_type`, `model_engine_cyl`, `model_body`)
-	- Note: response is JSONP and must be unwrapped before parsing
+- MarketCheck:
+	- Base URL: `https://api.marketcheck.com/v2/`
+	- Endpoint used: `GET /search/car/active?make={make}&model={model}&year={year}&car_type=used&stats=price`
+	- Purpose: real market listing prices, VINs, and listing metadata for snapshot ingestion plus fallback spec enrichment
+	- Auth: API key passed as `api_key` query parameter
+- RapidAPI car-api2:
+	- Base URL: `https://car-api2.p.rapidapi.com/`
+	- Endpoint used: `GET /api/vin/{vin}`
+	- Purpose: VIN-decoded body, drivetrain, fuel type, cylinder count, and trim enrichment
+	- Auth: `x-rapidapi-host` and `x-rapidapi-key` headers
 
 ## Data Model
 - `vehicles` collection:
@@ -115,5 +157,51 @@ This keeps deployment repeatable and avoids pasting long deploy commands each ti
 - `analytics` collection:
 	- One document per vehicle containing 30/90-day averages, volatility, trend direction, and buy score.
 
+## Estimated Monthly Cost (Student-Scale)
+- Cloud Run: $0 - $8
+- Firestore: $1 - $5
+- Cloud Functions: $0 - $3
+- Pub/Sub: $0 - $2
+- Cloud Scheduler: $0 - $1
+- Total estimate: $5 - $20 / month
+
+## Deliverable 2: Live Demo Checklist
+- Pitch:
+	- Explain purpose: vehicle market intelligence for buy-vs-wait decisions.
+- Live app demo:
+	- Search a vehicle not yet cached and show ingestion state.
+	- Refresh and show completed analytics + chart.
+- GCP Console tour:
+	- Cloud Run service status and revision.
+	- Firestore collections populated (`vehicles`, `price_snapshots`, `analytics`).
+	- Pub/Sub topics (`vehicle-ingest`, `price-ingest`).
+	- Cloud Functions (`ingestVehicles`, `ingestPrices`, `computeAnalytics`).
+
+## Deliverable 3: Write-Up Screenshot Checklist
+Add the following screenshots to your repo before submission:
+- Running web app search page.
+- Vehicle detail page with chart + buy score.
+- Cloud Run service details page.
+- Firestore documents in all three core collections.
+- Cloud Functions overview page.
+- Pub/Sub topics page.
+- Cloud Scheduler job page.
+
+## Post-Mortem Notes (Example)
+- Issue: Pricing pipeline initially used simulated values, violating real-data requirement.
+- Fix: Integrated MarketCheck API in both ingestion paths and validated live responses.
+- Issue: Frontend build was blocked by side-effect CSS import typing issue in client components.
+- Fix: Removed side-effect CSS imports and inlined equivalent utility class styling.
+- Provisioning approach: Mixed CLI + scripts (`infra/*.sh`) + GitHub Actions deploy workflow.
+
+## Teardown Proof
+This repo includes a full teardown script required by the assignment:
+
+```bash
+bash cleanup.sh
+```
+
+The script deletes Cloud Scheduler jobs, 2nd gen Cloud Functions, Cloud Run service, and Pub/Sub topics/subscriptions for this project.
+
 ## Known Limitations
-- Price data is currently simulated using a deterministic market model with bounded random noise instead of paid real listing feeds.
+- MarketCheck free tier quota is limited (e.g., 500 calls/month), so scheduler defaults should stay conservative for class-project scale.

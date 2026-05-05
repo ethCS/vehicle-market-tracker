@@ -67,21 +67,65 @@ export async function addPriceSnapshot(
   return created.id;
 }
 
+export async function addMissingPriceSnapshots(
+  vehicleId: string,
+  payloads: Array<Omit<PriceSnapshot, "id">>
+): Promise<number> {
+  if (payloads.length === 0) {
+    return 0;
+  }
+
+  const existing = await adminDb
+    .collection(PRICES_COLLECTION)
+    .where("vehicleId", "==", vehicleId)
+    .get();
+
+  const existingKeys = new Set(
+    existing.docs.map((doc) => {
+      const data = doc.data() as Omit<PriceSnapshot, "id">;
+      return `${data.capturedAt.toMillis()}:${data.source}`;
+    })
+  );
+
+  const batch = adminDb.batch();
+  let added = 0;
+
+  for (const payload of payloads) {
+    const key = `${payload.capturedAt.toMillis()}:${payload.source}`;
+    if (existingKeys.has(key)) {
+      continue;
+    }
+
+    const ref = adminDb.collection(PRICES_COLLECTION).doc();
+    batch.set(ref, payload);
+    existingKeys.add(key);
+    added += 1;
+  }
+
+  if (added > 0) {
+    await batch.commit();
+  }
+
+  return added;
+}
+
 export async function getPriceSnapshotsForVehicle(
   vehicleId: string,
   days: number
 ): Promise<PriceSnapshot[]> {
   const threshold = new Date();
   threshold.setDate(threshold.getDate() - days);
+  const thresholdMillis = threshold.getTime();
 
   const snapshot = await adminDb
     .collection(PRICES_COLLECTION)
     .where("vehicleId", "==", vehicleId)
-    .where("capturedAt", ">=", Timestamp.fromDate(threshold))
-    .orderBy("capturedAt", "desc")
     .get();
 
-  return snapshot.docs.map(normalizePriceSnapshot);
+  return snapshot.docs
+    .map(normalizePriceSnapshot)
+    .filter((item) => item.capturedAt.toMillis() >= thresholdMillis)
+    .sort((a, b) => b.capturedAt.toMillis() - a.capturedAt.toMillis());
 }
 
 export async function upsertAnalytics(

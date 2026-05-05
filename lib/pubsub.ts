@@ -47,6 +47,7 @@ export async function publishIngestionMessage(payload: PublishPayload): Promise<
 export async function publishPriceMessage(payload: {
   vehicleId: string;
   make: string;
+  model: string;
   year: number;
 }): Promise<string> {
   const topicName = process.env.PUBSUB_TOPIC_PRICES;
@@ -60,6 +61,7 @@ export async function publishPriceMessage(payload: {
       type: "prices",
       vehicleId: payload.vehicleId,
       make: payload.make,
+      model: payload.model,
       year: payload.year.toString()
     }
   });

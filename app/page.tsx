@@ -260,6 +260,13 @@ export default function HomePage(): JSX.Element {
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">CSCI391 Final Project</p>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/data")}
+            className="rounded-md border border-stroke bg-panel-soft px-3 py-1 text-xs font-medium text-ink/80 transition-colors hover:bg-panel"
+          >
+            Stored Data
+          </button>
           <span className="max-w-[180px] truncate text-xs text-ink/60">{user.email ?? user.displayName ?? ""}</span>
           <button
             type="button"

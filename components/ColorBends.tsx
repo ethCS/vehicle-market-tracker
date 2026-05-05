@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import "./ColorBends.css";
 
 const MAX_COLORS = 8;
 
@@ -355,7 +354,7 @@ export default function ColorBends({
   return (
     <div
       ref={containerRef}
-      className={`color-bends-container fixed inset-0 -z-10 pointer-events-none ${className}`}
+      className={`fixed inset-0 -z-10 h-full w-full overflow-hidden pointer-events-none ${className}`}
       style={style}
     />
   );
