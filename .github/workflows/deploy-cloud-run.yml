@@ -35,20 +35,38 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Grant Runtime Secret Access
+      - name: Resolve Runtime Service Account
         run: |
-          PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')
-          RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+          if [ -n "${{ secrets.CLOUD_RUN_RUNTIME_SA }}" ]; then
+            RUNTIME_SA="${{ secrets.CLOUD_RUN_RUNTIME_SA }}"
+          else
+            RUNTIME_SA="$(gcloud config get-value account)"
+          fi
+
+          if [ -z "$RUNTIME_SA" ] || [ "$RUNTIME_SA" = "(unset)" ]; then
+            echo "Unable to resolve runtime service account." >&2
+            exit 1
+          fi
+
+          echo "Using runtime service account: $RUNTIME_SA"
+          echo "RUNTIME_SA=${RUNTIME_SA}" >> "$GITHUB_ENV"
+
+      - name: Grant Runtime Secret Access (Best Effort)
+        run: |
+          echo "Attempting to grant Secret Accessor to runtime SA."
+          echo "If this step logs permission warnings, deploy can still succeed when access is already pre-granted."
 
           for SECRET in MARKETCHECK_API_KEY MARKETCHECK_CLIENT_SECRET INGEST_SECRET; do
-            gcloud secrets add-iam-policy-binding "$SECRET" \
+            if gcloud secrets add-iam-policy-binding "$SECRET" \
               --member="serviceAccount:${RUNTIME_SA}" \
               --role="roles/secretmanager.secretAccessor" \
               --project "$PROJECT_ID" \
-              --quiet
+              --quiet; then
+              echo "Granted access on ${SECRET}."
+            else
+              echo "Warning: could not update IAM for ${SECRET}; continuing."
+            fi
           done
-
-          echo "RUNTIME_SA=${RUNTIME_SA}" >> "$GITHUB_ENV"
 
       - name: Deploy to Cloud Run
         run: |
