@@ -51,23 +51,6 @@ jobs:
           echo "Using runtime service account: $RUNTIME_SA"
           echo "RUNTIME_SA=${RUNTIME_SA}" >> "$GITHUB_ENV"
 
-      - name: Grant Runtime Secret Access (Best Effort)
-        run: |
-          echo "Attempting to grant Secret Accessor to runtime SA."
-          echo "If this step logs permission warnings, deploy can still succeed when access is already pre-granted."
-
-          for SECRET in MARKETCHECK_API_KEY MARKETCHECK_CLIENT_SECRET INGEST_SECRET; do
-            if gcloud secrets add-iam-policy-binding "$SECRET" \
-              --member="serviceAccount:${RUNTIME_SA}" \
-              --role="roles/secretmanager.secretAccessor" \
-              --project "$PROJECT_ID" \
-              --quiet; then
-              echo "Granted access on ${SECRET}."
-            else
-              echo "Warning: could not update IAM for ${SECRET}; continuing."
-            fi
-          done
-
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy "$SERVICE" \
@@ -76,9 +59,7 @@ jobs:
             --service-account "$RUNTIME_SA" \
             --clear-base-image \
             --quiet \
-            --set-env-vars "GCLOUD_PROJECT=${PROJECT_ID},PUBSUB_TOPIC_INGEST=vehicle-ingest,PUBSUB_TOPIC_PRICES=price-ingest,FB_ADMIN_PROJECT_ID=${PROJECT_ID},FB_WEB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},FB_WEB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},FB_WEB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},FB_WEB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},FB_WEB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},FB_WEB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},NEXT_PUBLIC_FB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},NEXT_PUBLIC_FB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},NEXT_PUBLIC_FB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},NEXT_PUBLIC_FB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},NEXT_PUBLIC_FB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},MARKETCHECK_COUNTRY=us,MARKETCHECK_ROWS=25" \
-            --set-secrets "MARKETCHECK_API_KEY=MARKETCHECK_API_KEY:latest,MARKETCHECK_CLIENT_SECRET=MARKETCHECK_CLIENT_SECRET:latest" \
-            --set-secrets "INGEST_SECRET=INGEST_SECRET:latest"
+            --set-env-vars "GCLOUD_PROJECT=${PROJECT_ID},PUBSUB_TOPIC_INGEST=vehicle-ingest,PUBSUB_TOPIC_PRICES=price-ingest,FB_ADMIN_PROJECT_ID=${PROJECT_ID},FB_WEB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},FB_WEB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},FB_WEB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},FB_WEB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},FB_WEB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},FB_WEB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},NEXT_PUBLIC_FB_API_KEY=${{ secrets.NEXT_PUBLIC_FB_API_KEY }},NEXT_PUBLIC_FB_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FB_AUTH_DOMAIN }},NEXT_PUBLIC_FB_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FB_PROJECT_ID }},NEXT_PUBLIC_FB_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FB_STORAGE_BUCKET }},NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID }},NEXT_PUBLIC_FB_APP_ID=${{ secrets.NEXT_PUBLIC_FB_APP_ID }},MARKETCHECK_API_KEY=${{ secrets.MARKETCHECK_API_KEY }},MARKETCHECK_CLIENT_SECRET=${{ secrets.MARKETCHECK_CLIENT_SECRET }},INGEST_SECRET=${{ secrets.INGEST_SECRET }},MARKETCHECK_COUNTRY=us,MARKETCHECK_ROWS=25"
 
       - name: Show deployed service URL
         run: |
