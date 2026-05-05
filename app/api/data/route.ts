@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Timestamp } from "firebase-admin/firestore";
-import { adminDb } from "@/lib/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -29,57 +29,41 @@ function toIsoString(value: unknown): unknown {
   return value;
 }
 
-async function readCollection(collectionName: string, limit: number): Promise<UnknownRecord[]> {
-  const snapshot = await adminDb.collection(collectionName).limit(limit).get();
+function bearerToken(request: NextRequest): string | null {
+  const header = request.headers.get("authorization") ?? "";
+  if (!header.startsWith("Bearer ")) {
+    return null;
+  }
 
-  return snapshot.docs.map((doc) => {
-    const data = toIsoString(doc.data()) as UnknownRecord;
-    return {
-      id: doc.id,
-      ...data
-    };
-  });
+  const token = header.slice("Bearer ".length).trim();
+  return token === "" ? null : token;
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const [vehicles, priceSnapshots, analytics, users] = await Promise.all([
-      readCollection("vehicles", 300),
-      readCollection("price_snapshots", 1200),
-      readCollection("analytics", 300),
-      readCollection("users", 300)
-    ]);
+    const token = bearerToken(request);
+    if (token === null) {
+      return NextResponse.json({ error: "Missing auth token." }, { status: 401 });
+    }
 
-    const sortedVehicles = vehicles.sort((a, b) => {
-      const left = typeof a.lastUpdated === "string" ? Date.parse(a.lastUpdated) : 0;
-      const right = typeof b.lastUpdated === "string" ? Date.parse(b.lastUpdated) : 0;
-      return right - left;
-    });
-
-    const sortedSnapshots = priceSnapshots.sort((a, b) => {
-      const left = typeof a.capturedAt === "string" ? Date.parse(a.capturedAt) : 0;
-      const right = typeof b.capturedAt === "string" ? Date.parse(b.capturedAt) : 0;
-      return right - left;
-    });
-
-    const sortedAnalytics = analytics.sort((a, b) => {
-      const left = typeof a.lastComputed === "string" ? Date.parse(a.lastComputed) : 0;
-      const right = typeof b.lastComputed === "string" ? Date.parse(b.lastComputed) : 0;
-      return right - left;
-    });
+    const decoded = await adminAuth.verifyIdToken(token);
+    const userSnapshot = await adminDb.collection("users").doc(decoded.uid).get();
+    const userRecord = userSnapshot.exists
+      ? [{ id: userSnapshot.id, ...(toIsoString(userSnapshot.data()) as UnknownRecord) }]
+      : [];
 
     return NextResponse.json(
       {
         counts: {
-          vehicles: sortedVehicles.length,
-          priceSnapshots: sortedSnapshots.length,
-          analytics: sortedAnalytics.length,
-          users: users.length
+          vehicles: 0,
+          priceSnapshots: 0,
+          analytics: 0,
+          users: userRecord.length
         },
-        vehicles: sortedVehicles,
-        priceSnapshots: sortedSnapshots,
-        analytics: sortedAnalytics,
-        users
+        vehicles: [],
+        priceSnapshots: [],
+        analytics: [],
+        users: userRecord
       },
       { status: 200 }
     );

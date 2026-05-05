@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import useSWR from "swr";
+import { useAuth } from "@/components/AuthProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 type DataResponse = {
@@ -59,8 +60,12 @@ type UserDoc = {
   lastLoginAt?: string;
 };
 
-const fetcher = async (url: string): Promise<DataResponse> => {
-  const response = await fetch(url);
+const fetcher = async ([url, token]: [string, string]): Promise<DataResponse> => {
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   const body = (await response.json()) as DataResponse | { error: string };
 
   if (!response.ok) {
@@ -234,14 +239,35 @@ function UsersPreview({ rows }: { rows: Array<Record<string, unknown>> }): JSX.E
 }
 
 export default function StoredDataPage(): JSX.Element {
-  const { data, error, isLoading } = useSWR<DataResponse>("/api/data", fetcher, {
+  const { user, loading: authLoading } = useAuth();
+  const { data, error, isLoading } = useSWR<DataResponse>(
+    user !== null ? ["/api/data", user.uid] : null,
+    async ([url]) => {
+      const token = await user!.getIdToken();
+      return fetcher([url, token]);
+    },
+    {
     revalidateOnFocus: false
-  });
+    }
+  );
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <main className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
         <LoadingSpinner label="Loading stored DB data..." />
+      </main>
+    );
+  }
+
+  if (user === null) {
+    return (
+      <main className="mx-auto min-h-screen max-w-6xl px-4 py-10">
+        <Link href="/login" className="text-xs font-semibold uppercase tracking-[0.16em] text-brass">
+          Go to Login
+        </Link>
+        <p className="mt-6 rounded-xl glass-panel p-5 text-sm font-semibold text-clay">
+          Sign in to view your stored account data.
+        </p>
       </main>
     );
   }
@@ -267,8 +293,8 @@ export default function StoredDataPage(): JSX.Element {
         </Link>
         <h1 className="mt-3 text-3xl uppercase leading-tight text-ink md:text-5xl">Stored DB Data</h1>
         <p className="mt-3 max-w-3xl text-sm font-medium text-ink/75">
-          This screen shows the persisted Firestore state used by the app for grading visibility.
-          It includes vehicles, price snapshots, analytics, and user profile docs if present.
+          This screen now only shows the stored profile data for your signed-in account.
+          Shared market datasets are intentionally hidden from other users.
         </p>
       </header>
 
