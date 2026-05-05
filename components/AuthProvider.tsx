@@ -3,6 +3,7 @@
 import {
   type AuthError,
   GoogleAuthProvider,
+  signInWithEmailAndPassword,
   getIdToken,
   onAuthStateChanged,
   signInWithRedirect,
@@ -25,6 +26,7 @@ interface AuthContextValue {
   loading: boolean;
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmailPassword: (email: string, password: string) => Promise<void>;
   signOutUser: () => Promise<void>;
   clearAuthError: () => void;
 }
@@ -34,6 +36,7 @@ const AuthContext = createContext<AuthContextValue>({
   loading: true,
   authError: null,
   signInWithGoogle: async () => {},
+  signInWithEmailPassword: async () => {},
   signOutUser: async () => {},
   clearAuthError: () => {}
 });
@@ -51,15 +54,35 @@ function getAuthErrorMessage(error: unknown): string {
   }
 
   if (code === "auth/operation-not-allowed") {
-    return "Google sign-in is not enabled in Firebase Authentication providers.";
+    return "This sign-in method is not enabled in Firebase Authentication providers.";
   }
 
   if (code === "auth/invalid-api-key") {
     return "Firebase web config is invalid in this environment.";
   }
 
+  if (code === "auth/invalid-email") {
+    return "Enter a valid email address.";
+  }
+
+  if (code === "auth/missing-password") {
+    return "Enter your password.";
+  }
+
+  if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+    return "Incorrect email or password.";
+  }
+
+  if (code === "auth/user-not-found") {
+    return "No account exists for that email address.";
+  }
+
+  if (code === "auth/too-many-requests") {
+    return "Too many sign-in attempts. Please wait a moment and try again.";
+  }
+
   if (code === "auth/network-request-failed") {
-    return "Network error while contacting Google. Please try again.";
+    return "Network error while contacting Firebase. Please try again.";
   }
 
   return "Sign-in failed. Please try again.";
@@ -140,6 +163,25 @@ export function AuthProvider({
     }
   }, []);
 
+  const signInWithEmailPassword = useCallback(
+    async (email: string, password: string): Promise<void> => {
+      const auth = getClientAuth();
+      if (!auth) {
+        setAuthError("Firebase Auth is not configured in this environment.");
+        return;
+      }
+
+      setAuthError(null);
+
+      try {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+      } catch (error) {
+        setAuthError(getAuthErrorMessage(error));
+      }
+    },
+    []
+  );
+
   const signOutUser = useCallback(async (): Promise<void> => {
     const auth = getClientAuth();
     if (!auth) return;
@@ -152,8 +194,24 @@ export function AuthProvider({
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, authError, signInWithGoogle, signOutUser, clearAuthError }),
-    [user, loading, authError, signInWithGoogle, signOutUser, clearAuthError]
+    () => ({
+      user,
+      loading,
+      authError,
+      signInWithGoogle,
+      signInWithEmailPassword,
+      signOutUser,
+      clearAuthError
+    }),
+    [
+      user,
+      loading,
+      authError,
+      signInWithGoogle,
+      signInWithEmailPassword,
+      signOutUser,
+      clearAuthError
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
