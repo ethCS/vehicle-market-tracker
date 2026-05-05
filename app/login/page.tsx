@@ -7,13 +7,23 @@ import { useAuth } from "@/components/AuthProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function LoginPage(): JSX.Element {
-  const { user, loading, authError, signInWithGoogle, signInWithEmailPassword, clearAuthError } =
-    useAuth();
+  const {
+    user,
+    loading,
+    authError,
+    signInWithGoogle,
+    signInWithEmailPassword,
+    registerWithEmailPassword,
+    clearAuthError
+  } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isEmailSigningIn, setIsEmailSigningIn] = useState(false);
+  const [mode, setMode] = useState<"sign-in" | "register">("sign-in");
+  const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user !== null) {
@@ -28,6 +38,7 @@ export default function LoginPage(): JSX.Element {
   }, [clearAuthError]);
 
   const handleGoogleSignIn = async (): Promise<void> => {
+    setLocalError(null);
     setIsSigningIn(true);
     await signInWithGoogle();
     setIsSigningIn(false);
@@ -35,8 +46,19 @@ export default function LoginPage(): JSX.Element {
 
   const handleEmailPasswordSignIn = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setLocalError(null);
+
+    if (mode === "register" && password !== confirmPassword) {
+      setLocalError("Passwords do not match.");
+      return;
+    }
+
     setIsEmailSigningIn(true);
-    await signInWithEmailPassword(email, password);
+    if (mode === "register") {
+      await registerWithEmailPassword(email, password);
+    } else {
+      await signInWithEmailPassword(email, password);
+    }
     setIsEmailSigningIn(false);
   };
 
@@ -51,7 +73,9 @@ export default function LoginPage(): JSX.Element {
   return (
     <main className="flex min-h-screen items-center justify-center bg-fog px-4 py-10 sm:px-6">
       <section className="w-full max-w-md rounded-3xl glass-panel p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">Secure Sign In</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass">
+          {mode === "register" ? "Create Account" : "Secure Sign In"}
+        </p>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink">
           Vehicle Market Tracker
         </h1>
@@ -59,6 +83,34 @@ export default function LoginPage(): JSX.Element {
           Search real-time pricing trends and get a buy-vs-wait score for any
           make, model, and year.
         </p>
+        <div className="mt-6 grid grid-cols-2 gap-2 rounded-xl border border-stroke bg-panel-soft p-1">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("sign-in");
+              setLocalError(null);
+              clearAuthError();
+            }}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+              mode === "sign-in" ? "bg-panel text-ink shadow-sm" : "text-ink/55 hover:text-ink"
+            }`}
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("register");
+              setLocalError(null);
+              clearAuthError();
+            }}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+              mode === "register" ? "bg-panel text-ink shadow-sm" : "text-ink/55 hover:text-ink"
+            }`}
+          >
+            Register
+          </button>
+        </div>
         <form className="mt-6 space-y-4" onSubmit={(event) => void handleEmailPasswordSignIn(event)}>
           <div>
             <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-ink/55" htmlFor="email">
@@ -90,12 +142,35 @@ export default function LoginPage(): JSX.Element {
               required
             />
           </div>
+          {mode === "register" && (
+            <div>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-ink/55" htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                className="w-full rounded-lg border border-stroke bg-panel px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-brass"
+                placeholder="Re-enter your password"
+                required
+              />
+            </div>
+          )}
           <button
             type="submit"
             disabled={isEmailSigningIn || isSigningIn}
             className="w-full rounded-lg bg-ink px-6 py-3 text-sm font-semibold text-fog transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isEmailSigningIn ? "Signing in..." : "Sign in with email"}
+            {isEmailSigningIn
+              ? mode === "register"
+                ? "Creating account..."
+                : "Signing in..."
+              : mode === "register"
+                ? "Create account"
+                : "Sign in with email"}
           </button>
         </form>
         <div className="mt-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink/35">
@@ -129,9 +204,9 @@ export default function LoginPage(): JSX.Element {
           </svg>
           {isSigningIn ? "Starting sign-in..." : "Continue with Google"}
         </button>
-        {authError !== null && (
+        {(localError !== null || authError !== null) && (
           <p className="mt-4 max-w-md rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
-            {authError}
+            {localError ?? authError}
           </p>
         )}
       </section>

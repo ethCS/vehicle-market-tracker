@@ -38,13 +38,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const existing = await userRef.get();
 
     const now = Timestamp.now();
+    const provider = decoded.firebase.sign_in_provider ?? "unknown";
     await userRef.set(
       {
         uid: decoded.uid,
         email: body.email ?? decoded.email ?? null,
         displayName: body.displayName ?? decoded.name ?? null,
         photoURL: body.photoURL ?? decoded.picture ?? null,
-        provider: "google",
+        provider,
         lastLoginAt: now,
         ...(existing.exists ? {} : { createdAt: now })
       },

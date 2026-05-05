@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  createUserWithEmailAndPassword,
   type AuthError,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
@@ -27,6 +28,7 @@ interface AuthContextValue {
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
   signInWithEmailPassword: (email: string, password: string) => Promise<void>;
+  registerWithEmailPassword: (email: string, password: string) => Promise<void>;
   signOutUser: () => Promise<void>;
   clearAuthError: () => void;
 }
@@ -37,6 +39,7 @@ const AuthContext = createContext<AuthContextValue>({
   authError: null,
   signInWithGoogle: async () => {},
   signInWithEmailPassword: async () => {},
+  registerWithEmailPassword: async () => {},
   signOutUser: async () => {},
   clearAuthError: () => {}
 });
@@ -75,6 +78,14 @@ function getAuthErrorMessage(error: unknown): string {
 
   if (code === "auth/user-not-found") {
     return "No account exists for that email address.";
+  }
+
+  if (code === "auth/email-already-in-use") {
+    return "An account already exists for that email address.";
+  }
+
+  if (code === "auth/weak-password") {
+    return "Use a stronger password with at least 6 characters.";
   }
 
   if (code === "auth/too-many-requests") {
@@ -182,6 +193,25 @@ export function AuthProvider({
     []
   );
 
+  const registerWithEmailPassword = useCallback(
+    async (email: string, password: string): Promise<void> => {
+      const auth = getClientAuth();
+      if (!auth) {
+        setAuthError("Firebase Auth is not configured in this environment.");
+        return;
+      }
+
+      setAuthError(null);
+
+      try {
+        await createUserWithEmailAndPassword(auth, email.trim(), password);
+      } catch (error) {
+        setAuthError(getAuthErrorMessage(error));
+      }
+    },
+    []
+  );
+
   const signOutUser = useCallback(async (): Promise<void> => {
     const auth = getClientAuth();
     if (!auth) return;
@@ -200,6 +230,7 @@ export function AuthProvider({
       authError,
       signInWithGoogle,
       signInWithEmailPassword,
+      registerWithEmailPassword,
       signOutUser,
       clearAuthError
     }),
@@ -209,6 +240,7 @@ export function AuthProvider({
       authError,
       signInWithGoogle,
       signInWithEmailPassword,
+      registerWithEmailPassword,
       signOutUser,
       clearAuthError
     ]
