@@ -40,7 +40,13 @@ jobs:
           if [ -n "${{ secrets.CLOUD_RUN_RUNTIME_SA }}" ]; then
             RUNTIME_SA="${{ secrets.CLOUD_RUN_RUNTIME_SA }}"
           else
-            RUNTIME_SA="$(gcloud config get-value account)"
+            PROJECT_NUMBER="${{ secrets.GCLOUD_PROJECT_NUMBER }}"
+
+            if [ -z "$PROJECT_NUMBER" ]; then
+              PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
+            fi
+
+            RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
           fi
 
           if [ -z "$RUNTIME_SA" ] || [ "$RUNTIME_SA" = "(unset)" ]; then
@@ -50,18 +56,6 @@ jobs:
 
           echo "Using runtime service account: $RUNTIME_SA"
           echo "RUNTIME_SA=${RUNTIME_SA}" >> "$GITHUB_ENV"
-
-      - name: Normalize Existing Secret Bindings
-        run: |
-          if gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT_ID" >/dev/null 2>&1; then
-            gcloud run services update "$SERVICE" \
-              --region "$REGION" \
-              --project "$PROJECT_ID" \
-              --clear-secrets \
-              --quiet
-          else
-            echo "Service does not exist yet; skipping secret binding normalization."
-          fi
 
       - name: Deploy to Cloud Run
         run: |
