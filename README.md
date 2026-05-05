@@ -36,6 +36,10 @@ flowchart TD
 	- All persistent state is stored in Firestore collections (`vehicles`, `price_snapshots`, `analytics`).
 	- Container/function restarts do not affect persisted data.
 
+## Deliverable 1 Check-In
+- Architecture pitch and budget document: `docs/check-in-pitch-budget.md`
+- Visual system diagram: `docs/architecture.md`
+
 ## Data Flow (Technical Write-Up)
 1. User submits make/model/year from the Cloud Run-hosted Next.js UI.
 2. `GET /api/search` checks Firestore for a cached vehicle document.
@@ -202,6 +206,12 @@ bash cleanup.sh
 ```
 
 The script deletes Cloud Scheduler jobs, 2nd gen Cloud Functions, Cloud Run service, and Pub/Sub topics/subscriptions for this project.
+
+For a guaranteed no-billing teardown, it can also delete the entire Google Cloud project:
+
+```bash
+DELETE_PROJECT=1 bash cleanup.sh
+```
 
 ## Known Limitations
 - MarketCheck free tier quota is limited (e.g., 500 calls/month), so scheduler defaults should stay conservative for class-project scale.

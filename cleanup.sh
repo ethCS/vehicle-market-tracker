@@ -35,4 +35,19 @@ for topic in vehicle-ingest price-ingest; do
     gcloud pubsub topics delete "$topic" --project="$PROJECT" --quiet || true
 done
 
+# Secret Manager secrets used by Cloud Run / CI
+for secret in INGEST_SECRET MARKETCHECK_API_KEY MARKETCHECK_CLIENT_SECRET; do
+  gcloud secrets describe "$secret" --project="$PROJECT" >/dev/null 2>&1 && \
+    gcloud secrets delete "$secret" --project="$PROJECT" --quiet || true
+done
+
+if [[ "${DELETE_PROJECT:-0}" == "1" ]]; then
+  echo "Deleting entire project: $PROJECT"
+  gcloud projects delete "$PROJECT" --quiet
+else
+  echo "Project-level teardown not executed."
+  echo "To delete the entire GCP project and guarantee no residual billing, run:"
+  echo "  DELETE_PROJECT=1 bash cleanup.sh"
+fi
+
 echo "Teardown complete for project infrastructure resources."
