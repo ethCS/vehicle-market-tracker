@@ -3,6 +3,12 @@
 ## overview
 this is my csci391 cloud computing final project. you search a used car by make, model, and year and it shows you price trends, volatility, and a buy-vs-wait score based on real market listings. the frontend and api are on next.js 14 running on cloud run, all the data lives in firestore, and background ingestion + analytics recomputation runs through cloud functions triggered by pub/sub.
 
+<p align="center">
+	<img src="docs/screenshots/search-page.png" alt="Vehicle Market Tracker search page" width="1000" />
+</p>
+
+<p align="center"><em>live app preview: search page and landing experience</em></p>
+
 ## architecture diagram
 
 ```mermaid
@@ -183,6 +189,27 @@ The repository includes an automated Cloud Run deploy workflow at `.github/workf
 	- cloud functions overview
 	- pub/sub topics page
 	- cloud scheduler job
+
+	## deliverable 3 screenshots
+	these screenshots are stored in `docs/screenshots` so they render correctly from this repository on github.
+
+	### search page
+	<img src="docs/screenshots/search-page.png" alt="Search page" width="900" />
+
+	### vehicle detail page with chart and buy score
+	<img src="docs/screenshots/vehicle-detail-page.png" alt="Vehicle detail page with price chart and buy score" width="900" />
+
+	### stored database data page
+	<img src="docs/screenshots/stored-data-page.png" alt="Stored database data page showing vehicles, snapshots, analytics, and users" width="900" />
+
+	### cloud run services and deployed functions
+	<img src="docs/screenshots/cloud-run-services.png" alt="Google Cloud Run services page showing the app service and deployed functions" width="900" />
+
+	### firestore database view
+	<img src="docs/screenshots/firestore-data.png" alt="Firestore data view showing project collections and an analytics document" width="900" />
+
+	### pub/sub topics page
+	<img src="docs/screenshots/pubsub-topics.png" alt="Google Cloud Pub/Sub topics page" width="900" />
 
 	## teardown
 	to spin everything down (e.g. after grading):
