@@ -3,24 +3,37 @@
 import { FormEvent, useState } from "react";
 
 type SearchInput = {
+  vin: string;
   make: string;
   model: string;
   year: string;
 };
 
 type SearchBarProps = {
-  onSearch: (payload: { make: string; model: string; year: number }) => Promise<void>;
+  onSearch: (payload: { vin?: string; make?: string; model?: string; year?: number }) => Promise<void>;
   isLoading: boolean;
 };
 
 const currentYear = new Date().getFullYear();
 
 export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.Element {
-  const [form, setForm] = useState<SearchInput>({ make: "", model: "", year: "" });
+  const [form, setForm] = useState<SearchInput>({ vin: "", make: "", model: "", year: "" });
   const [error, setError] = useState<string>("");
 
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+
+    const normalizedVin = form.vin.trim().toUpperCase();
+    if (normalizedVin !== "") {
+      if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(normalizedVin)) {
+        setError("Enter a valid 17-character VIN (letters and numbers only).");
+        return;
+      }
+
+      setError("");
+      await onSearch({ vin: normalizedVin });
+      return;
+    }
 
     const yearNumber = Number(form.year);
     if (
@@ -47,7 +60,20 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
       onSubmit={submit}
       className="rounded-3xl glass-panel p-5 md:p-8"
     >
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
+        <label className="flex flex-col gap-2 md:col-span-4">
+          <span className="text-xs font-bold uppercase tracking-[0.16em] text-ink/80">VIN (optional)</span>
+          <input
+            value={form.vin}
+            onChange={(event) => setForm((prev) => ({ ...prev, vin: event.target.value }))}
+            className="rounded-xl border border-stroke bg-panel-soft px-4 py-3 text-sm text-ink outline-none ring-brass transition placeholder:text-ink/35 focus:ring-2"
+            placeholder="1HGCM82633A123456"
+            maxLength={17}
+          />
+          <p className="text-[11px] font-medium text-ink/60">
+            if vin is entered, make/model/year fields are ignored.
+          </p>
+        </label>
         <label className="flex flex-col gap-2">
           <span className="text-xs font-bold uppercase tracking-[0.16em] text-ink/80">Make</span>
           <input

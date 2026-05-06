@@ -28,6 +28,13 @@ type RecentVehicle = {
   year: number;
 };
 
+type SearchPayload = {
+  vin?: string;
+  make?: string;
+  model?: string;
+  year?: number;
+};
+
 const RECENT_KEY = "vehicle-market-tracker-recent";
 
 function vehiclePath(make: string, model: string, year: number): string {
@@ -113,16 +120,25 @@ export default function HomePage(): JSX.Element {
     });
   };
 
-  const handleSearch = async (payload: RecentVehicle): Promise<void> => {
+  const handleSearch = async (payload: SearchPayload): Promise<void> => {
     setIsLoading(true);
     setMessage("");
 
     try {
-      const searchParams = new URLSearchParams({
-        make: payload.make,
-        model: payload.model,
-        year: payload.year.toString()
-      });
+      const searchParams = new URLSearchParams();
+      if (payload.vin !== undefined && payload.vin.trim() !== "") {
+        searchParams.set("vin", payload.vin.trim().toUpperCase());
+      } else if (
+        payload.make !== undefined &&
+        payload.model !== undefined &&
+        payload.year !== undefined
+      ) {
+        searchParams.set("make", payload.make);
+        searchParams.set("model", payload.model);
+        searchParams.set("year", payload.year.toString());
+      } else {
+        throw new Error("Search input is incomplete.");
+      }
 
       const performRequest = async (): Promise<SearchResult> => {
         const response = await fetch(`/api/search?${searchParams.toString()}`, {
@@ -154,8 +170,14 @@ export default function HomePage(): JSX.Element {
       }
 
       if (result.status === "ready") {
-        saveRecent(payload);
-        router.push(vehiclePath(payload.make, payload.model, payload.year));
+        saveRecent({
+          make: result.vehicle.make,
+          model: result.vehicle.model,
+          year: result.vehicle.year
+        });
+        router.push(
+          vehiclePath(result.vehicle.make, result.vehicle.model, result.vehicle.year)
+        );
       } else {
         setMessage("Still ingesting data. Please try again shortly.");
       }

@@ -180,6 +180,14 @@ type RapidApiVinResponse = {
   }>;
 };
 
+type NhtsaDecodeVinResponse = {
+  Results?: Array<{
+    Make?: string;
+    Model?: string;
+    ModelYear?: string;
+  }>;
+};
+
 function dateKeyFromListing(listing: MarketCheckListing): string | null {
   const raw =
     listing.last_seen_at_date ??
@@ -293,6 +301,41 @@ function normalizeVin(vin: string | undefined): string | undefined {
   }
 
   return normalized;
+}
+
+async function decodeVinToSearchParams(
+  vin: string
+): Promise<{ make: string; model: string; year: number } | null> {
+  const url =
+    `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${encodeURIComponent(vin)}?format=json`;
+
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`VIN decode failed with status ${response.status}.`);
+  }
+
+  const body = (await response.json()) as NhtsaDecodeVinResponse;
+  const decoded = body.Results?.[0];
+  if (decoded === undefined) {
+    return null;
+  }
+
+  const make = decoded.Make?.trim() ?? "";
+  const model = decoded.Model?.trim() ?? "";
+  const year = Number(decoded.ModelYear?.trim() ?? "");
+  const currentYear = new Date().getFullYear();
+
+  if (
+    make === "" ||
+    model === "" ||
+    Number.isNaN(year) ||
+    year < 1995 ||
+    year > currentYear
+  ) {
+    return null;
+  }
+
+  return { make, model, year };
 }
 
 function sanitizeProviderText(value: string | undefined | null): string | undefined {
@@ -922,24 +965,37 @@ export async function GET(
   NextResponse<SearchReadyResponse | SearchIngestingResponse | ErrorResponse>
 > {
   try {
-    const make = request.nextUrl.searchParams.get("make")?.trim() ?? "";
-    const model = request.nextUrl.searchParams.get("model")?.trim() ?? "";
-    const yearValue = request.nextUrl.searchParams.get("year")?.trim() ?? "";
+    const vin = normalizeVin(request.nextUrl.searchParams.get("vin") ?? undefined);
+    let make = request.nextUrl.searchParams.get("make")?.trim() ?? "";
+    let model = request.nextUrl.searchParams.get("model")?.trim() ?? "";
+    let parsedYear = Number(request.nextUrl.searchParams.get("year")?.trim() ?? "");
 
-    const parsedYear = Number(yearValue);
-    const currentYear = new Date().getFullYear();
+    if (vin !== undefined) {
+      const decoded = await decodeVinToSearchParams(vin);
+      if (decoded === null) {
+        return NextResponse.json(
+          { error: "Invalid VIN. Could not resolve make, model, and year." },
+          { status: 400 }
+        );
+      }
 
-    if (
-      make === "" ||
-      model === "" ||
-      Number.isNaN(parsedYear) ||
-      parsedYear < 1995 ||
-      parsedYear > currentYear
-    ) {
-      return NextResponse.json(
-        { error: "Invalid query params. make, model, and year are required." },
-        { status: 400 }
-      );
+      make = decoded.make;
+      model = decoded.model;
+      parsedYear = decoded.year;
+    } else {
+      const currentYear = new Date().getFullYear();
+      if (
+        make === "" ||
+        model === "" ||
+        Number.isNaN(parsedYear) ||
+        parsedYear < 1995 ||
+        parsedYear > currentYear
+      ) {
+        return NextResponse.json(
+          { error: "Invalid query params. provide vin or make, model, and year." },
+          { status: 400 }
+        );
+      }
     }
 
     const vehicleId = vehicleIdFor(make, model, parsedYear);
