@@ -15,6 +15,7 @@ type SearchBarProps = {
 };
 
 const currentYear = new Date().getFullYear();
+const EXAMPLE_VIN = "2G1FJ1EJ0C9128790";
 
 function normalizeVinInput(value: string): string {
   return value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "").slice(0, 17);
@@ -88,6 +89,16 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
             autoCapitalize="characters"
             spellCheck={false}
           />
+          <button
+            type="button"
+            onClick={() => {
+              setForm((prev) => ({ ...prev, vin: normalizeVinInput(EXAMPLE_VIN) }));
+              setError("");
+            }}
+            className="w-fit rounded-md border border-stroke bg-panel-soft px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink/80 transition-colors hover:bg-panel"
+          >
+            use example vin
+          </button>
           <p className="text-[11px] font-medium text-ink/60">
             if vin is entered, make/model/year fields are ignored.
           </p>
