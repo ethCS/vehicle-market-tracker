@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ClipboardEvent, FormEvent, useState } from "react";
 
 type SearchInput = {
   vin: string;
@@ -16,9 +16,20 @@ type SearchBarProps = {
 
 const currentYear = new Date().getFullYear();
 
+function normalizeVinInput(value: string): string {
+  return value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "").slice(0, 17);
+}
+
 export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.Element {
   const [form, setForm] = useState<SearchInput>({ vin: "", make: "", model: "", year: "" });
   const [error, setError] = useState<string>("");
+
+  const handleVinPaste = (event: ClipboardEvent<HTMLInputElement>): void => {
+    event.preventDefault();
+    const pasted = event.clipboardData.getData("text");
+    const normalized = normalizeVinInput(pasted);
+    setForm((prev) => ({ ...prev, vin: normalized }));
+  };
 
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -65,10 +76,17 @@ export default function SearchBar({ onSearch, isLoading }: SearchBarProps): JSX.
           <span className="text-xs font-bold uppercase tracking-[0.16em] text-ink/80">VIN (optional)</span>
           <input
             value={form.vin}
-            onChange={(event) => setForm((prev) => ({ ...prev, vin: event.target.value }))}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, vin: normalizeVinInput(event.target.value) }))
+            }
+            onPaste={handleVinPaste}
             className="rounded-xl border border-stroke bg-panel-soft px-4 py-3 text-sm text-ink outline-none ring-brass transition placeholder:text-ink/35 focus:ring-2"
             placeholder="1HGCM82633A123456"
             maxLength={17}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="characters"
+            spellCheck={false}
           />
           <p className="text-[11px] font-medium text-ink/60">
             if vin is entered, make/model/year fields are ignored.
